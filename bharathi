@@ -1,1 +1,172 @@
+// Six Design Patterns Demonstration in Beginner-Friendly Java
+// Author: [Your Name]
+
+/* ======================
+   1. BEHAVIOURAL PATTERNS
+   ====================== */
+
+// (a) Observer Pattern – Weather Station
+interface Observer {
+    void update(int temperature);
+}
+
+class WeatherStation {
+    private Observer obs1, obs2;
+    public void addObservers(Observer o1, Observer o2) {
+        obs1 = o1; obs2 = o2;
+    }
+    public void setTemperature(int temp) {
+        if (obs1 != null) obs1.update(temp);
+        if (obs2 != null) obs2.update(temp);
+    }
+}
+
+class MobileApp implements Observer {
+    String name;
+    MobileApp(String name) { this.name = name; }
+    public void update(int temperature) {
+        System.out.println(name + " App → Temperature: " + temperature + "°C");
+    }
+}
+
+// (b) Strategy Pattern – Payment
+interface Payment {
+    void pay(int amount);
+}
+
+class CreditCard implements Payment {
+    public void pay(int amount) {
+        System.out.println("Paid " + amount + " using Credit Card");
+    }
+}
+
+class PayPal implements Payment {
+    public void pay(int amount) {
+        System.out.println("Paid " + amount + " using PayPal");
+    }
+}
+
+class ShoppingCart {
+    Payment payment;
+    ShoppingCart(Payment p) { payment = p; }
+    void checkout(int amount) { payment.pay(amount); }
+}
+
+/* ======================
+   2. CREATIONAL PATTERNS
+   ====================== */
+
+// (a) Singleton Pattern – Database Connection
+class Database {
+    private static Database instance;
+    private Database() { System.out.println("Database Connected!"); }
+    public static Database getInstance() {
+        if (instance == null) instance = new Database();
+        return instance;
+    }
+}
+
+// (b) Factory Method – Notification
+interface Notification {
+    void notifyUser(String msg);
+}
+
+class SMS implements Notification {
+    public void notifyUser(String msg) { System.out.println("SMS: " + msg); }
+}
+
+class Email implements Notification {
+    public void notifyUser(String msg) { System.out.println("Email: " + msg); }
+}
+
+class NotificationFactory {
+    static Notification createNotification(String type) {
+        if (type.equalsIgnoreCase("SMS")) return new SMS();
+        if (type.equalsIgnoreCase("Email")) return new Email();
+        return null;
+    }
+}
+
+/* ======================
+   3. STRUCTURAL PATTERNS
+   ====================== */
+
+// (a) Adapter Pattern – Old Printer
+class OldPrinter {
+    void printText(String text) {
+        System.out.println("Old Printer: " + text);
+    }
+}
+
+interface USBPrinter {
+    void connect(String text);
+}
+
+class PrinterAdapter implements USBPrinter {
+    OldPrinter oldPrinter;
+    PrinterAdapter(OldPrinter op) { oldPrinter = op; }
+    public void connect(String text) { oldPrinter.printText(text); }
+}
+
+// (b) Decorator Pattern – Coffee
+interface Coffee {
+    int cost();
+    String description();
+}
+
+class PlainCoffee implements Coffee {
+    public int cost() { return 50; }
+    public String description() { return "Plain Coffee"; }
+}
+
+class Milk implements Coffee {
+    Coffee coffee;
+    Milk(Coffee c) { coffee = c; }
+    public int cost() { return coffee.cost() + 20; }
+    public String description() { return coffee.description() + ", Milk"; }
+}
+
+class Sugar implements Coffee {
+    Coffee coffee;
+    Sugar(Coffee c) { coffee = c; }
+    public int cost() { return coffee.cost() + 10; }
+    public String description() { return coffee.description() + ", Sugar"; }
+}
+
+/* ======================
+   MAIN DEMO CLASS
+   ====================== */
+public class DesignPatternsDemo {
+    public static void main(String[] args) {
+        System.out.println("=== Behavioural Patterns ===");
+        WeatherStation station = new WeatherStation();
+        station.addObservers(new MobileApp("Android"), new MobileApp("iOS"));
+        station.setTemperature(30);
+
+        ShoppingCart cart1 = new ShoppingCart(new CreditCard());
+        cart1.checkout(500);
+        ShoppingCart cart2 = new ShoppingCart(new PayPal());
+        cart2.checkout(1200);
+
+        System.out.println("\n=== Creational Patterns ===");
+        Database d1 = Database.getInstance();
+        Database d2 = Database.getInstance();
+        System.out.println("Same object? " + (d1 == d2));
+
+        Notification n1 = NotificationFactory.createNotification("SMS");
+        n1.notifyUser("Your OTP is 1234");
+        Notification n2 = NotificationFactory.createNotification("Email");
+        n2.notifyUser("Welcome!");
+
+        System.out.println("\n=== Structural Patterns ===");
+        USBPrinter usbPrinter = new PrinterAdapter(new OldPrinter());
+        usbPrinter.connect("Hello via USB Adapter");
+
+        Coffee c = new PlainCoffee();
+        System.out.println(c.description() + " : " + c.cost());
+        c = new Milk(c);
+        c = new Sugar(c);
+        System.out.println(c.description() + " : " + c.cost());
+    }
+}
 
